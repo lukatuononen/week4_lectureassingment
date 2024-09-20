@@ -1,36 +1,35 @@
 pipeline {
     agent any
-
     stages {
         stage('Checkout') {
             steps {
                 git 'https://github.com/lukatuononen/week4_lectureassingment.git'
             }
         }
-
         stage('Build') {
             steps {
                 bat 'mvn clean install'
             }
         }
-
         stage('Test') {
             steps {
                 bat 'mvn test'
             }
         }
-
         stage('Code Coverage') {
             steps {
-                jacoco execPattern: '**/target/jacoco.exec'
+                bat 'mvn jacoco:report'
             }
         }
-    }
-
-    post {
-        always {
-            junit '**/target/surefire-reports/*.xml'
-            jacoco execPattern: '**/target/jacoco.exec'
+        stage('Publish Test Results') {
+            steps {
+                junit '**/target/surefire-reports/*.xml'
+            }
+        }
+        stage('Publish Coverage Report') {
+            steps {
+                jacoco()
+            }
         }
     }
 }
